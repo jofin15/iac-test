@@ -27,6 +27,9 @@ resource "google_storage_bucket" "secure_bucket" {
 
   uniform_bucket_level_access = true
 
+  # Fix for CKV_GCP_114 - explicitly prevent public access
+  public_access_prevention = "enforced"
+
   versioning {
     enabled = true
   }
