@@ -20,8 +20,8 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
-#checkov:skip=CKV_GCP_62: Log bucket does not need to log to itself
 resource "google_storage_bucket" "log_bucket" {
+  #checkov:skip=CKV_GCP_62:Log bucket intentionally does not log to itself
   name                        = "vault-demo-logs-${random_id.bucket_suffix.hex}"
   location                    = "US"
   force_destroy               = true
