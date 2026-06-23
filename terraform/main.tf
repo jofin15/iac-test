@@ -20,13 +20,17 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
-# This bucket stores the access logs for the main bucket
+#checkov:skip=CKV_GCP_62: Log bucket does not need to log to itself
 resource "google_storage_bucket" "log_bucket" {
   name                        = "vault-demo-logs-${random_id.bucket_suffix.hex}"
   location                    = "US"
   force_destroy               = true
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
+
+  versioning {
+    enabled = true
+  }
 }
 
 resource "google_storage_bucket" "secure_bucket" {
@@ -40,7 +44,6 @@ resource "google_storage_bucket" "secure_bucket" {
     enabled = true
   }
 
-  # Fix for CKV_GCP_62 - enable access logging
   logging {
     log_bucket        = google_storage_bucket.log_bucket.name
     log_object_prefix = "access-logs/"
