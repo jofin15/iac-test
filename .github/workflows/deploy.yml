@@ -14,21 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
       - name: Install Checkov
         run: pip install checkov
-
-      - name: Run Checkov scan
-        run: |
-          checkov -d terraform --framework terraform \
-            --skip-check CKV_GCP_62,CKV_GCP_78 \
-            --soft-fail-on MEDIUM
-        continue-on-error: false
+      - name: Run Checkov
+        run: checkov -d terraform --framework terraform
 
   deploy:
     name: Terraform Deploy
@@ -39,27 +31,18 @@ jobs:
         working-directory: ./terraform
     steps:
       - uses: actions/checkout@v4
-
       - name: Get GCP token from Vault
         uses: hashicorp/vault-action@v3
         with:
-          url: http://34.173.6.234:8200
+          url: http://34.44.205.68:8200
           role: gh-actions-role
           method: jwt
           jwtGithubAudience: https://github.com/jofin15
           secrets: |
             gcp/static-account/terraform-account/token token | GOOGLE_OAUTH_ACCESS_TOKEN
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - run: terraform init
+      - run: terraform plan
+      - run: terraform apply -auto-approve
